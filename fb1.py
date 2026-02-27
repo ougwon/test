@@ -77,7 +77,7 @@ def open_url_manual_input():
             try:
                 # Get current page source
                 html = page.content()
-                soup = BeautifulSoup(html, 'parser.html')
+                soup = BeautifulSoup(html, 'html.parser')
                 
                 # Get the current base URL for resolving relative links
                 base_url = page.url
