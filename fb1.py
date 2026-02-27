@@ -22,7 +22,7 @@ def open_url_manual_input():
     with sync_playwright() as p:
         # Launch browser in headed mode so user can see
         # Fixed window position to left monitor (0,0) and defined size for better compatibility
-        browser = p.chromium.launch(headless=False, args=["--window-position=0,0", "--window-size=1280,800"])
+        browser = p.chromium.launch(headless=False, args=["--window-position=1500,0", "--window-size=1280,800"])
         context = browser.new_context()
         page = context.new_page()
         
@@ -62,6 +62,36 @@ def open_url_manual_input():
 
         if is_login_page:
             print("\n*** 로그인 화면이 감지되었습니다. ***")
+            print("로그인 정보를 자동으로 입력합니다...")
+            
+            try:
+                # Selectors for email/username/ID
+                email_selectors = [
+                    "input[type='email']", "input[name='email']", "input[name='email_address']",
+                    "input[id='email']", "input[placeholder*='아이디']", "input[placeholder*='Email']"
+                ]
+                # Selectors for password
+                pass_selectors = [
+                    "input[type='password']", "input[name='pass']", "input[name='password']",
+                    "input[id='pass']", "input[placeholder*='비밀번호']", "input[placeholder*='Password']"
+                ]
+                
+                # Try to fill email
+                for selector in email_selectors:
+                    if page.locator(selector).count() > 0:
+                        page.locator(selector).fill("ougwon@gmail.com")
+                        break
+                
+                # Try to fill password
+                for selector in pass_selectors:
+                    if page.locator(selector).count() > 0:
+                        page.locator(selector).fill("fb1535246*")
+                        break
+                        
+                print("자동 입력 완료. (필요 시 직접 수정해 주세요)")
+            except Exception as e:
+                print(f"Error during auto-filling: {e}")
+
             print("브라우저 창에서 로그인을 진행해 주세요.")
             input("로그인을 마치셨다면 터미널에서 Enter 키를 눌러주세요...")
             print("로그인 확인 후 작업을 계속합니다.\n")
