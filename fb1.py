@@ -257,5 +257,3 @@ def open_url_manual_input():
 #test
 if __name__ == "__main__":
     open_url_manual_input()
-#test2 
-"""수정
