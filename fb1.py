@@ -200,14 +200,14 @@ def open_url_manual_input():
                 page.goto(target_url)
                 print("Successfully moved to target link.")
                 
-                # Secondary Navigation: Search for "View All Friends"
-                print("Searching for 'View All Friends' (모든 친구 보기) link...")
+                # Secondary Navigation: Search for "Friends" link
+                print("Searching for 'Friends' (친구) link...")
                 page.wait_for_load_state("networkidle")
                 page.wait_for_timeout(3000)
                 
-                # Search for "모든 친구" or similar keywords
+                # Search for "친구" or "Friends"
                 friends_list_url = None
-                keywords = ["모든 친구", "모든 친구 보기", "친구 보기", "All Friends"]
+                keywords = ["친구", "Friends"]
                 
                 current_links = get_all_links()
                 for href, text in current_links.items():
@@ -222,7 +222,7 @@ def open_url_manual_input():
                     page.wait_for_load_state("networkidle")
                     page.wait_for_timeout(5000) # Wait for friend list to load
                 else:
-                    print("'모든 친구' link not found. Staying on current page.")
+                    print("'친구' link not found on current page. Staying here.")
 
                 def get_friend_profiles():
                     try:
