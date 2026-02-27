@@ -235,11 +235,31 @@ def open_url_manual_input():
                             f.write(f"{text} | {href}\n")
                     print(f"Saved friend list to {friends_list_file}")
 
-                    # Final visit: Go to the first profile as a demo/continuation
-                    final_url = list(all_profiles.keys())[0]
-                    print(f"Final visit to friend profile: {final_url}")
-                    page.goto(final_url)
-                    print("Reached friend's profile page.")
+                    # New Interactive Navigation Loop
+                    print("\n" + "="*50)
+                    print("친구 프로필 순차 탐색을 시작합니다.")
+                    print("Enter: 이동 | n: 건너뛰기 | q: 종료")
+                    print("="*50 + "\n")
+
+                    profiles_list = sorted(all_profiles.items(), key=lambda x: x[1])
+                    for i, (href, name) in enumerate(profiles_list):
+                        print(f"[{i+1}/{len(profiles_list)}] 친구 이름: {name}")
+                        choice = input("이동하려면 Enter, 다음으로 넘어가려면 'n', 종료하려면 'q'를 입력하세요: ").lower().strip()
+                        
+                        if choice == 'q':
+                            print("탐색을 종료합니다.")
+                            break
+                        elif choice == 'n':
+                            print(f"{name}님을 건너뜁니다.")
+                            continue
+                        else:
+                            print(f"{name}님의 프로필로 이동합니다: {href}")
+                            try:
+                                page.goto(href)
+                                page.wait_for_load_state("networkidle")
+                                input("다음에 계속하려면 터미널에서 Enter를 누르세요...")
+                            except Exception as e:
+                                print(f"이동 중 오류 발생: {e}")
                 else:
                     print("No friend profiles could be extracted from the secondary page.")
                     
