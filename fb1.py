@@ -165,12 +165,40 @@ def open_url_manual_input():
         
         print(f"Successfully saved {len(unique_links)} links to {links_file}")
         
+        # New Interactive Initial Link Selection
+        print("\n" + "="*50)
+        print("추출된 링크 중 이동할 대상을 선택하세요.")
+        print("'이동': 해당 링크로 이동 | Enter: 다음 링크 보기 | q: 취소 및 자동 '친구' 탐색")
+        print("="*50 + "\n")
+
+        selected_url = None
+        links_list = sorted(unique_links.items(), key=lambda x: x[1])
+        for i, (href, text) in enumerate(links_list):
+            print(f"[{i+1}/{len(links_list)}] 링크 내용: {text if text else '(텍스트 없음)'}")
+            print(f"URL: {href}")
+            user_input = input("이동하시겠습니까? ('이동' 입력, 아니면 Enter): ").strip()
+            
+            if user_input == '이동':
+                selected_url = href
+                break
+            elif user_input.lower() == 'q':
+                print("인터랙티브 선택을 중단하고 기본 흐름을 계속합니다.")
+                break
+
+        if selected_url:
+            target_url = selected_url
+            print(f"사용자 선택 링크로 설정됨: {target_url}")
+
         # 4. Navigate
         if target_url:
-            print(f"Navigating to prioritized '친구' link: {target_url}")
+            if selected_url:
+                print(f"Navigating to selected link: {target_url}")
+            else:
+                print(f"Navigating to prioritized '친구' link: {target_url}")
+            
             try:
                 page.goto(target_url)
-                print("Successfully moved to '친구' link.")
+                print("Successfully moved to target link.")
                 
                 # Secondary Navigation: On Page B, move to the first friend profile
                 print("Performing secondary navigation (reaching profile)...")
@@ -250,7 +278,7 @@ def open_url_manual_input():
                             print("탐색을 종료합니다.")
                             break
                         elif choice == 'n':
-                            print(f"{name}님을 건너뜜니다.")
+                            print(f"{name}님을 건너뜁니다.")
                             continue
                         else:
                             print(f"{name}님의 프로필로 이동합니다: {href}")
