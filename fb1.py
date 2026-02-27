@@ -1,6 +1,7 @@
 import os
 import sys
 from playwright.sync_api import sync_playwright
+from bs4 import BeautifulSoup
 
 def open_url_manual_input():
     # Get the directory where the script is located
@@ -166,32 +167,38 @@ def open_url_manual_input():
                 
                 def get_friend_profiles():
                     try:
-                        # Heuristic: Find links that are likely profile links
-                        # We extract both href and text to be sure
-                        data = page.locator("a").evaluate_all("""
-                            list => list.map(a => ({href: a.href, text: a.innerText.trim()}))
-                                .filter(item => {
-                                    const href = item.href;
-                                    const text = item.text;
-                                    // Basic profile patterns
-                                    if (!href || !href.startsWith('http')) return false;
-                                    
-                                    // Exclude common navigation/feature links
-                                    const exclude = [
-                                        '/home', '/friends', '/groups', '/marketplace', 
-                                        '/events', '/notifications', '/watch', '/messages', 
-                                        '/ads', '/settings', '/checkpoint', '/login', '/recover',
-                                        '/pages', '/gaming', '/saved', '/memories'
-                                    ];
-                                    if (exclude.some(pattern => href.includes(pattern))) return false;
-                                    
-                                    // Profiles usually don't have many query params other than 'id' or 'sk'
-                                    // and usually have some text (the name)
-                                    return text.length > 0;
-                                })
-                        """)
-                        return [item['href'] for item in data]
-                    except: return []
+                        # Use BeautifulSoup to parse the current page content
+                        html = page.content()
+                        soup = BeautifulSoup(html, 'html.parser')
+                        
+                        profile_links = []
+                        exclude = [
+                            '/home', '/friends', '/groups', '/marketplace', 
+                            '/events', '/notifications', '/watch', '/messages', 
+                            '/ads', '/settings', '/checkpoint', '/login', '/recover',
+                            '/pages', '/gaming', '/saved', '/memories'
+                        ]
+                        
+                        for a in soup.find_all('a', href=True):
+                            href = a['href']
+                            text = a.get_text(strip=True)
+                            
+                            # Basic profile patterns heuristic
+                            if not href or not href.startswith('http'):
+                                continue
+                                
+                            # Exclude common navigation/feature links
+                            if any(pattern in href for pattern in exclude):
+                                continue
+                                
+                            # Profiles usually have some text (the name)
+                            if len(text) > 0:
+                                profile_links.append(href)
+                        
+                        return profile_links
+                    except Exception as e:
+                        print(f"BeautifulSoup extraction error: {e}")
+                        return []
 
                 new_links = get_friend_profiles()
                 if not new_links:
