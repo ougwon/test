@@ -106,7 +106,7 @@ def open_url_manual_input():
         def find_target_explicitly():
             try:
                 # Search for any element containing the text "모든 친구"
-                target_elements = page.get_by_text("모든 친구")
+                target_elements = page.get_by_text("친구")
                 count = target_elements.count()
                 for i in range(count):
                     elem = target_elements.nth(i)
@@ -129,29 +129,28 @@ def open_url_manual_input():
             # Fallback to general extraction
             unique_links = get_all_links()
             for href, text in unique_links.items():
-                if "모든 친구" in text:
-                    target_url = href
+                if "친구" in text:                    target_url = href
                     break
         else:
-            print(f"Aggressive detection found '모든 친구' link: {target_url}")
+            print(f"Aggressive detection found '친구' link: {target_url}")
 
         if not target_url:
-            print("'모든 친구' link not found initially. Scrolling to load more content...")
+            print("'친구' link not found initially. Scrolling to load more content...")
             for i in range(5):
                 page.mouse.wheel(0, 1500)
                 page.wait_for_timeout(1500)
                 
                 target_url = find_target_explicitly()
                 if target_url:
-                    print(f"Found '모든 친구' after scrolling (Step {i+1}): {target_url}")
+                    print(f"Found '친구' after scrolling (Step {i+1}): {target_url}")
                     break
                 
                 current_links = get_all_links()
                 unique_links.update(current_links)
                 for href, text in current_links.items():
-                    if "모든 친구" in text:
+                    if "친구" in text:
                         target_url = href
-                        print(f"Found '모든 친구' in general extraction after scrolling (Step {i+1}): {target_url}")
+                        print(f"Found '친구' in general extraction after scrolling (Step {i+1}): {target_url}")
                         break
                 if target_url: break
         else:
