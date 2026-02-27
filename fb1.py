@@ -200,11 +200,30 @@ def open_url_manual_input():
                 page.goto(target_url)
                 print("Successfully moved to target link.")
                 
-                # Secondary Navigation: On Page B, move to the first friend profile
-                print("Performing secondary navigation (reaching profile)...")
+                # Secondary Navigation: Search for "View All Friends"
+                print("Searching for 'View All Friends' (모든 친구 보기) link...")
                 page.wait_for_load_state("networkidle")
-                page.wait_for_timeout(5000) # Increased wait for friend list
+                page.wait_for_timeout(3000)
                 
+                # Search for "모든 친구" or similar keywords
+                friends_list_url = None
+                keywords = ["모든 친구", "모든 친구 보기", "친구 보기", "All Friends"]
+                
+                current_links = get_all_links()
+                for href, text in current_links.items():
+                    if any(keyword in text for keyword in keywords):
+                        friends_list_url = href
+                        break
+                
+                if friends_list_url:
+                    print(f"Found friends list link: {friends_list_url}")
+                    print("Navigating to Friends List...")
+                    page.goto(friends_list_url)
+                    page.wait_for_load_state("networkidle")
+                    page.wait_for_timeout(5000) # Wait for friend list to load
+                else:
+                    print("'모든 친구' link not found. Staying on current page.")
+
                 def get_friend_profiles():
                     try:
                         # Use BeautifulSoup to parse the current page content
