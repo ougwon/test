@@ -257,9 +257,23 @@ def open_url_manual_input():
                             try:
                                 page.goto(href)
                                 page.wait_for_load_state("networkidle")
+                                
+                                # Extract links from the friend's profile
+                                print(f"{name}님의 프로필에서 링크 추출 중...")
+                                profile_links = get_all_links()
+                                
+                                # Sanitize name for filename
+                                safe_name = "".join([c for c in name if c.isalnum() or c in (' ', '_', '-')]).strip()
+                                profile_file = os.path.join(script_dir, f"profile_links_{safe_name}.txt")
+                                
+                                with open(profile_file, "w", encoding="utf-8") as f:
+                                    for p_href, p_text in sorted(profile_links.items()):
+                                        f.write(f"{p_text} | {p_href}\n")
+                                
+                                print(f"추출 완료: {len(profile_links)}개의 링크를 {profile_file}에 저장했습니다.")
                                 input("다음에 계속하려면 터미널에서 Enter를 누르세요...")
                             except Exception as e:
-                                print(f"이동 중 오류 발생: {e}")
+                                print(f"이동 또는 추출 중 오류 발생: {e}")
                 else:
                     print("No friend profiles could be extracted from the secondary page.")
                     
