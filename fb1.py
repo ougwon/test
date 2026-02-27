@@ -7,6 +7,7 @@ def open_url_manual_input():
     # Get the directory where the script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
     links_file = os.path.join(script_dir, "links.txt")
+    friends_list_file = os.path.join(script_dir, "friends_list.txt")
     
     url = input("이동할 주소를 입력하세요 (예: google.com): ").strip()
     
@@ -179,6 +180,7 @@ def open_url_manual_input():
                             '/pages', '/gaming', '/saved', '/memories'
                         ]
                         
+                        # Aggressively collect all matching <a> tags
                         for a in soup.find_all('a', href=True):
                             href = a['href']
                             text = a.get_text(strip=True)
@@ -193,34 +195,45 @@ def open_url_manual_input():
                                 
                             # Profiles usually have some text (the name)
                             if len(text) > 0:
-                                profile_links.append(href)
+                                profile_links.append((href, text))
                         
                         return profile_links
                     except Exception as e:
                         print(f"BeautifulSoup extraction error: {e}")
                         return []
 
-                new_links = get_friend_profiles()
-                if not new_links:
-                    print("No profile links found on Page B. Scrolling to load friend list...")
-                    for i in range(5):
-                        page.mouse.wheel(0, 1500)
-                        page.wait_for_timeout(2000)
-                        new_links = get_friend_profiles()
-                        if new_links: 
-                            print(f"Found profiles after scrolling (Step {i+1}).")
-                            break
+                print("Starting friend profile extraction with scrolling...")
+                all_profiles = {}
                 
-                if new_links:
-                    final_url = new_links[0]
-                    print(f"Secondary navigation to friend profile: {final_url}")
+                # Scrolling phase to load as many friends as possible
+                for i in range(10): # Scroll up to 10 times to load content
+                    current_batch = get_friend_profiles()
+                    for href, text in current_batch:
+                        if href not in all_profiles:
+                            all_profiles[href] = text
+                    
+                    print(f"Scrolling and collecting... (Step {i+1}, Unique Profiles: {len(all_profiles)})")
+                    page.mouse.wheel(0, 2000)
+                    page.wait_for_timeout(2500) # Wait for content to load
+
+                if all_profiles:
+                    print(f"Extracted {len(all_profiles)} friend profiles.")
+                    # Save profiles to friends_list.txt
+                    with open(friends_list_file, "w", encoding="utf-8") as f:
+                        for href, text in sorted(all_profiles.items(), key=lambda x: x[1]): # Sort by name
+                            f.write(f"{text} | {href}\n")
+                    print(f"Saved friend list to {friends_list_file}")
+
+                    # Final visit: Go to the first profile as a demo/continuation
+                    final_url = list(all_profiles.keys())[0]
+                    print(f"Final visit to friend profile: {final_url}")
                     page.goto(final_url)
-                    print("Successfully reached the friend's profile page.")
+                    print("Reached friend's profile page.")
                 else:
-                    print("Could not identify any friend profiles on the secondary page.")
+                    print("No friend profiles could be extracted from the secondary page.")
                     
             except Exception as e:
-                print(f"Failed during navigation flow: {e}")
+                print(f"Failed during extraction flow: {e}")
         elif unique_links:
             # Fallback
             first_url = sorted(unique_links.keys())[0]
