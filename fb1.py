@@ -250,7 +250,7 @@ def open_url_manual_input():
                             print("탐색을 종료합니다.")
                             break
                         elif choice == 'n':
-                            print(f"{name}님을 건너뜁니다.")
+                            print(f"{name}님을 건너뜜니다.")
                             continue
                         else:
                             print(f"{name}님의 프로필로 이동합니다: {href}")
