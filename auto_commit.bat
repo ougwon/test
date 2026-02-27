@@ -12,8 +12,7 @@
 
 :loop
 
-	cd D:\My Java\algorithm
-
+	cd D:\test\test1
 	git add --all
 
 	git commit -m "auto commit"
