@@ -21,7 +21,8 @@ def open_url_manual_input():
 
     with sync_playwright() as p:
         # Launch browser in headed mode so user can see
-        browser = p.chromium.launch(headless=False)
+        # Fixed window position to left monitor (0,0) and defined size for better compatibility
+        browser = p.chromium.launch(headless=False, args=["--window-position=0,0", "--window-size=1280,800"])
         context = browser.new_context()
         page = context.new_page()
         
