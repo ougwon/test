@@ -102,10 +102,10 @@ def open_url_manual_input():
         print("Extracting links...")
         unique_links = get_all_links()
         
-        # Helper to find "모든 친구" link explicitly
+        # Helper to find "친구" link explicitly
         def find_target_explicitly():
             try:
-                # Search for any element containing the text "모든 친구"
+                # Search for any element containing the text "친구"
                 target_elements = page.get_by_text("친구")
                 count = target_elements.count()
                 for i in range(count):
@@ -121,15 +121,16 @@ def open_url_manual_input():
             except: pass
             return None
 
-        # Robust search for "모든 친구" (Page A)
-        print("Searching for '모든 친구' link...")
+        # Robust search for "친구" (Page A)
+        print("Searching for '친구' link...")
         target_url = find_target_explicitly()
         
         if not target_url:
             # Fallback to general extraction
             unique_links = get_all_links()
             for href, text in unique_links.items():
-                if "친구" in text:                    target_url = href
+                if "친구" in text:
+                    target_url = href
                     break
         else:
             print(f"Aggressive detection found '친구' link: {target_url}")
@@ -166,10 +167,10 @@ def open_url_manual_input():
         
         # 4. Navigate
         if target_url:
-            print(f"Navigating to prioritized '모든 친구' link: {target_url}")
+            print(f"Navigating to prioritized '친구' link: {target_url}")
             try:
                 page.goto(target_url)
-                print("Successfully moved to '모든 친구' link.")
+                print("Successfully moved to '친구' link.")
                 
                 # Secondary Navigation: On Page B, move to the first friend profile
                 print("Performing secondary navigation (reaching profile)...")
@@ -267,7 +268,7 @@ def open_url_manual_input():
         elif unique_links:
             # Fallback
             first_url = sorted(unique_links.keys())[0]
-            print(f"'모든 친구' link not found. Navigating to first available link: {first_url}")
+            print(f"'친구' link not found. Navigating to first available link: {first_url}")
             try:
                 page.goto(first_url)
             except Exception as e:
