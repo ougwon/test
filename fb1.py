@@ -2,6 +2,7 @@ import os
 import sys
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 def open_url_manual_input():
     # Get the directory where the script is located
@@ -71,22 +72,31 @@ def open_url_manual_input():
             page.wait_for_load_state("networkidle")
             page.wait_for_timeout(3000) # Give it a bit more time to settle
 
-        # 1. Extract all links with their text
+        # 1. Extract all links with their text using BeautifulSoup
         def get_all_links():
             try:
-                data = page.locator("a").evaluate_all(
-                    "list => list.map(a => ({href: a.href, text: a.innerText.trim()}))"
-                )
+                # Get current page source
+                html = page.content()
+                soup = BeautifulSoup(html, 'parser.html')
+                
+                # Get the current base URL for resolving relative links
+                base_url = page.url
+                
                 unique = {}
-                for item in data:
-                    href = item['href']
-                    text = item['text']
-                    if href and href.startswith('http'):
-                        if href not in unique:
-                            unique[href] = text
+                # Extract all <a> tags
+                for a in soup.find_all('a', href=True):
+                    href = a['href']
+                    text = a.get_text(strip=True)
+                    
+                    # Convert relative URL to absolute
+                    full_url = urljoin(base_url, href)
+                    
+                    if full_url.startswith('http'):
+                        if full_url not in unique:
+                            unique[full_url] = text
                 return unique
             except Exception as e:
-                print(f"Extraction error: {e}")
+                print(f"BeautifulSoup extraction error: {e}")
                 return {}
 
         print("Extracting links...")
